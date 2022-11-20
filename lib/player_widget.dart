@@ -1,5 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:voice_rec/format.dart';
 
 class PlayerWidget extends StatefulWidget {
   final String url;
@@ -51,54 +52,67 @@ class _PlayerWidgetState extends State<PlayerWidget>
   @override
   Widget build(BuildContext context) {
     return initialized
-        ? Column(
-            children: [
-              Row(
+        ? Padding(
+            padding: const EdgeInsets.all(18.0),
+            child: Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20), color: Colors.amber),
+              child: Column(
                 children: [
-                  IconButton(
-                      onPressed: () {
-                        setState(() async {
-                          if (player.state == PlayerState.playing) {
-                            await player.pause();
-                            _animationController.reverse();
-                          } else if (player.state == PlayerState.completed ||
-                              player.state == PlayerState.stopped) {
-                            await player.play(DeviceFileSource(widget.url));
-                            // await player.play(BytesSource(File(widget.url).readAsBytesSync()));
-                            // await player.seek(Duration(seconds: 1));
-                            _animationController.forward();
-                          } else {
-                            await player.resume();
-                            _animationController.forward();
-                          }
-                        });
-                      },
-                      icon: AnimatedIcon(
-                        icon: AnimatedIcons.play_pause,
-                        progress: _animationController,
-                      )),
-                  if (duration != null)
-                    Expanded(
-                      child: Slider(
-                        onChanged: (value) async {
-                          final _position = Duration(seconds: value.toInt());
-                          await player.seek(_position);
-                        },
-                        value: position.inSeconds.toDouble(),
-                        max: duration!.inSeconds.toDouble(),
-                        min: 0,
-                      ),
+                  Row(
+                    children: [
+                      IconButton(
+                          onPressed: () {
+                            setState(() async {
+                              if (player.state == PlayerState.playing) {
+                                await player.pause();
+                                _animationController.reverse();
+                              } else if (player.state ==
+                                      PlayerState.completed ||
+                                  player.state == PlayerState.stopped) {
+                                await player.play(DeviceFileSource(widget.url));
+                                // await player.play(BytesSource(File(widget.url).readAsBytesSync()));
+                                // await player.seek(Duration(seconds: 1));
+                                _animationController.forward();
+                              } else {
+                                await player.resume();
+                                _animationController.forward();
+                              }
+                            });
+                          },
+                          icon: AnimatedIcon(
+                            icon: AnimatedIcons.play_pause,
+                            progress: _animationController,
+                          )),
+                      if (duration != null)
+                        Expanded(
+                          child: Slider(
+                            onChanged: (value) async {
+                              final _position =
+                                  Duration(seconds: value.toInt());
+                              await player.seek(_position);
+                            },
+                            value: position.inSeconds.toDouble(),
+                            max: duration!.inSeconds.toDouble(),
+                            min: 0,
+                          ),
+                        ),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 35.0, bottom: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(formatTime(position)),
+                        Text(" - "),
+                        Text(formatTime(duration! - position))
+                      ],
                     ),
+                  )
                 ],
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Text(position.toString()),
-                  Text((duration! - position).toString())
-                ],
-              )
-            ],
+            ),
           )
         : Container();
   }
