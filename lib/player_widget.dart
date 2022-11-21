@@ -39,6 +39,9 @@ class _PlayerWidgetState extends State<PlayerWidget>
   //as
   Future<void> init() async {
     player = AudioPlayer()..setReleaseMode(ReleaseMode.stop);
+
+    await player.setSourceDeviceFile(widget.url);
+
     player.onPlayerStateChanged.listen((s) {
       setState(() {
         initialized = s == PlayerState.playing;
@@ -58,13 +61,7 @@ class _PlayerWidgetState extends State<PlayerWidget>
         });
       });
     });
-    await player.setSourceDeviceFile(widget.url);
-    // await setDuration();
-    // player.onPositionChanged.listen((event) {
-    //   position = event;
-    //   print(position);
-    //   setState(() {});
-    // });
+
     Future.microtask(() {
       initialized = true;
       setState(() {});
