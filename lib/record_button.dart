@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:slide_to_act/slide_to_act.dart';
 
 class RecordButton extends StatefulWidget {
   final Future Function(File file) getFile;
@@ -61,33 +62,81 @@ class _RecordButtonState extends State<RecordButton> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        StreamBuilder<RecordingDisposition>(
-          stream: recorder.onProgress,
-          builder: (context, snapshot) {
-            final duration =
-                snapshot.hasData ? snapshot.data!.duration : Duration.zero;
-            String twoDigits(int n) => n.toString().padLeft(2, '0');
-            final twDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
-            final twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+        // Builder(
+        //   builder: (context) {
+        //     final GlobalKey<SlideActionState> _key = GlobalKey();
+        //     return Padding(
+        //       padding: const EdgeInsets.all(8.0),
+        //       child: SlideAction(
+        //         reversed: true,
+        //         sliderButtonIcon: Icon(
+        //           Icons.mic,
+        //         ),
+        //         child: Text(
+        //           "Slide to cancel",
+        //           style: TextStyle(color: Colors.black, fontSize: 17),
+        //         ),
+        //         key: _key,
+        //         onSubmit: () async {
+        //           Future.delayed(
+        //             Duration(seconds: 1),
+        //             () => _key.currentState?.reset(),
+        //           );
+        //           await stop();
+        //         },
+        //       ),
+        //     );
+        //   },
+        // ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "Slide to cancel",
+              style: TextStyle(color: Colors.black, fontSize: 17),
+            ),
+            SizedBox(width: 20),
+            Column(
+              children: [
+                StreamBuilder<RecordingDisposition>(
+                  stream: recorder.onProgress,
+                  builder: (context, snapshot) {
+                    final duration = snapshot.hasData
+                        ? snapshot.data!.duration
+                        : Duration.zero;
+                    String twoDigits(int n) => n.toString().padLeft(2, '0');
+                    final twDigitMinutes =
+                        twoDigits(duration.inMinutes.remainder(60));
+                    final twoDigitSeconds =
+                        twoDigits(duration.inSeconds.remainder(60));
 
-            return Text("$twDigitMinutes:$twoDigitSeconds");
-          },
+                    return Text("$twDigitMinutes:$twoDigitSeconds");
+                  },
+                ),
+                GestureDetector(
+                  onLongPressStart: (_) async {
+                    await record();
+                    setState(() {});
+                  },
+                  onLongPressEnd: (details) async {
+                    await stop();
+                    setState(() {});
+                  },
+                  // onLongPressMoveUpdate: (details) async {
+                  //   await recorder.closeRecorder();
+                  //   setState(() {
+                  //     isRecorderReady = false;
+                  //   });
+                  // },
+                  child: Icon(
+                    recorder.isRecording ? Icons.stop : Icons.mic,
+                    size: 50,
+                  ),
+                )
+              ],
+            ),
+          ],
         ),
-        GestureDetector(
-          onLongPressStart: (_) async {
-            await record();
-
-            setState(() {});
-          },
-          onLongPressEnd: (details) async {
-            await stop();
-            setState(() {});
-          },
-          child: Icon(
-            recorder.isRecording ? Icons.stop : Icons.mic,
-            size: 50,
-          ),
-        )
       ],
     );
   }
