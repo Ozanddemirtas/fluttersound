@@ -26,6 +26,7 @@ dependencies:
   permission_handler: ^10.2.0
   audioplayers: 
   slide_to_act: ^2.0.1
+  flutter_social_textfield: ^0.1.2
 
 dev_dependencies:
   flutter_test:

@@ -1,6 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-import 'package:voice_rec/format.dart';
+import 'package:voice_rec/util/format.dart';
 
 class PlayerWidget extends StatefulWidget {
   final String url;

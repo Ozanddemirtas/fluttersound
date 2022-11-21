@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:voice_rec/player_widget.dart';
-import 'package:voice_rec/record_button.dart';
+import 'package:voice_rec/voice/player_widget.dart';
+import 'package:voice_rec/voice/record_button.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
