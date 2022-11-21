@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:voice_rec/mention/mention.dart';
 
-import 'mention/mention_aboce.dart';
-import 'voice/homepage.dart';
+import 'mention/mention_above.dart';
 
 void main() {
   runApp(const MyApp());
