@@ -66,8 +66,11 @@ class _RecordButtonState extends State<RecordButton> {
           builder: (context, snapshot) {
             final duration =
                 snapshot.hasData ? snapshot.data!.duration : Duration.zero;
+            String twoDigits(int n) => n.toString().padLeft(2, '0');
+            final twDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+            final twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
 
-            return Text("${duration.inSeconds} s");
+            return Text("$twDigitMinutes:$twoDigitSeconds");
           },
         ),
         GestureDetector(

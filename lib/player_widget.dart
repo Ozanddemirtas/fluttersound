@@ -18,8 +18,15 @@ class _PlayerWidgetState extends State<PlayerWidget>
   late AudioPlayer player;
   late bool initialized;
   late AnimationController _animationController;
-  Duration? duration;
+  Duration duration = Duration.zero;
   Duration position = Duration.zero;
+
+  @override
+  void dispose() {
+    player.dispose();
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -29,20 +36,35 @@ class _PlayerWidgetState extends State<PlayerWidget>
     init();
   }
 
-  Future setDuration() async {
-    duration = await player.getDuration();
-  }
-
   //as
   Future<void> init() async {
     player = AudioPlayer()..setReleaseMode(ReleaseMode.stop);
-    await player.setSourceDeviceFile(widget.url);
-    await setDuration();
-    player.onPositionChanged.listen((event) {
-      position = event;
-      print(position);
-      setState(() {});
+    player.onPlayerStateChanged.listen((s) {
+      setState(() {
+        initialized = s == PlayerState.playing;
+      });
     });
+
+    player.onDurationChanged.listen((d) {
+      setState(() {
+        duration = d;
+      });
+    });
+
+    player.onPositionChanged.listen((p) {
+      player.onPositionChanged.listen((p) {
+        setState(() {
+          position = p;
+        });
+      });
+    });
+    await player.setSourceDeviceFile(widget.url);
+    // await setDuration();
+    // player.onPositionChanged.listen((event) {
+    //   position = event;
+    //   print(position);
+    //   setState(() {});
+    // });
     Future.microtask(() {
       initialized = true;
       setState(() {});
@@ -63,22 +85,16 @@ class _PlayerWidgetState extends State<PlayerWidget>
                     children: [
                       IconButton(
                           onPressed: () {
-                            setState(() async {
-                              if (player.state == PlayerState.playing) {
-                                await player.pause();
-                                _animationController.reverse();
-                              } else if (player.state ==
-                                      PlayerState.completed ||
-                                  player.state == PlayerState.stopped) {
-                                await player.play(DeviceFileSource(widget.url));
-                                // await player.play(BytesSource(File(widget.url).readAsBytesSync()));
-                                // await player.seek(Duration(seconds: 1));
-                                _animationController.forward();
-                              } else {
-                                await player.resume();
-                                _animationController.forward();
-                              }
-                            });
+                            if (player.state == PlayerState.playing) {
+                              player.pause();
+                            } else if (player.state == PlayerState.completed ||
+                                player.state == PlayerState.stopped) {
+                              player.play(DeviceFileSource(widget.url));
+                              // await player.play(BytesSource(File(widget.url).readAsBytesSync()));
+                              // await player.seek(Duration(seconds: 1));
+                            } else {
+                              player.resume();
+                            }
                           },
                           icon: AnimatedIcon(
                             icon: AnimatedIcons.play_pause,
@@ -93,7 +109,7 @@ class _PlayerWidgetState extends State<PlayerWidget>
                               await player.seek(_position);
                             },
                             value: position.inSeconds.toDouble(),
-                            max: duration!.inSeconds.toDouble(),
+                            max: duration.inSeconds.toDouble(),
                             min: 0,
                           ),
                         ),
@@ -106,7 +122,7 @@ class _PlayerWidgetState extends State<PlayerWidget>
                       children: [
                         Text(formatTime(position)),
                         Text(" - "),
-                        Text(formatTime(duration! - position))
+                        Text(formatTime(duration - position))
                       ],
                     ),
                   )
